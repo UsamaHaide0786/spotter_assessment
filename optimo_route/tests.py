@@ -1,18 +1,16 @@
-import pytest
+from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 from .models import FuelPrice
-from .views import RoutePlannerView
 
 
-@pytest.mark.django_db
-class TestRoutePlannerView:
+class RouteViewTests(TestCase):
     """
     Test suite for the RoutePlannerView API endpoint.
     This class contains various test cases to ensure the route planning functionality works as expected.
     """
 
-    def setup_method(self):
+    def setUp(self):
         """ 
         Create an instance of the API client for testing and set up initial data.
         """
@@ -21,7 +19,7 @@ class TestRoutePlannerView:
     def test_invalid_start_location(self):
         """
         Test case for an invalid start location.
-        
+
         This test sends a POST request with an invalid start location (outside the USA).
         It verifies that the response status is 400 BAD REQUEST and checks that
         the appropriate error message is returned.
@@ -32,11 +30,10 @@ class TestRoutePlannerView:
         }
         response = self.client.post('/api/route/', data, format='json')
 
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert 'start_location' in response.data
-
-        assert response.data['start_location'][0].code == 'invalid'
-        assert response.data['start_location'][0] == "Start location 'London, UK' is not within the USA."
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('start_location', response.data)
+        self.assertEqual(response.data['start_location'][0].code, 'invalid')
+        self.assertEqual(response.data['start_location'][0], "Start location 'London, UK' is not within the USA.")
 
     def test_invalid_finish_location(self):
         """
@@ -52,11 +49,10 @@ class TestRoutePlannerView:
         }
         response = self.client.post('/api/route/', data, format='json')
 
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert 'finish_location' in response.data
-
-        assert response.data['finish_location'][0].code == 'invalid'
-        assert response.data['finish_location'][0] == "Finish location 'Tokyo, Japan' is not within the USA."
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('finish_location', response.data)
+        self.assertEqual(response.data['finish_location'][0].code, 'invalid')
+        self.assertEqual(response.data['finish_location'][0], "Finish location 'Tokyo, Japan' is not within the USA.")
 
     def test_no_fuel_prices(self):
         """
@@ -74,9 +70,9 @@ class TestRoutePlannerView:
         }
         response = self.client.post('/api/route/', data, format='json')
 
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert 'error' in response.data
-        assert response.data['error'] == "No fuel prices available to calculate the total cost."
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
+        self.assertEqual(response.data['error'], "No fuel prices available to calculate the total cost.")
 
     def test_multiple_fuel_stops(self):
         """ 
@@ -94,8 +90,8 @@ class TestRoutePlannerView:
         }
         response = self.client.post('/api/route/', data, format='json')
 
-        assert response.status_code == status.HTTP_200_OK
-        assert len(response.data['fuel_stops']) > 1
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data['fuel_stops']), 1)
 
     def test_exact_vehicle_range(self):
         """ 
@@ -112,5 +108,5 @@ class TestRoutePlannerView:
         }
         response = self.client.post('/api/route/', data, format='json')
 
-        assert response.status_code == status.HTTP_200_OK
-        assert 'fuel_stops' in response.data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('fuel_stops', response.data)
