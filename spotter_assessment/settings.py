@@ -118,8 +118,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "https://bugdev.s3.us-east-2.amazonaws.com/static_farva/"
-# STATIC_URL = os.environ.get('STATIC_URL', "")
+STATIC_URL = os.environ.get('STATIC_URL', "")
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
