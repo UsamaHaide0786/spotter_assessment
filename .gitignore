@@ -1,0 +1,8 @@
+__pycache__
+.env
+debug_logger
+.idea
+staticfiles
+static
+tracker_static
+debug_logger.log
